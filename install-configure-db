@@ -1,0 +1,45 @@
+
+1. At first login on database server  ssh peter@stdb01
+
+2. Switch to  root user : sudo su -
+
+3. Install postgresql 
+
+yum install  mariadb*  -y
+
+systemctl start mariadb;systemctl enable mariadb;systemctl status mariadb
+
+mysql_secure_installation
+mysql -u root -p kodekloud
+CREATE DATABASE kodekloud_db10;
+CREATE USER 'kodekloud_rin'@'localhost' identified by 'kodekloud';
+GRANT ALL PRIVILEGES on kodekloud_db10.* to 'kodekloud_rin' identified by 'kodekloud' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+
+vi /etc/my.cnf
+
+bind-address=172.16.239.10
+port=3306
+
+yum install openssh-clients -y
+
+from jump server : scp /home/thor/db.sql peter@stdb01:/tmp
+
+mysql -u kodekloud_rin -p kodekloud_db10 < /tmp/db.sql
+
+systemctl restart mariadb
+systemctl status mariadb
+
+mysql -u kodekloud_rin -p -h localhost
+mysql -u kodekloud_rin -p -h stdb01
+show databases;
+
+ssh natasha@ststor01
+sudo su -
+cat /data/wp-config.php | grep DB_NAME
+
+sed -i 's/dbname/kodekloud_db10/g' /data/wp-config.php
+sed -i 's/dbuser/kodekloud_rin/g' /data/wp-config.php
+sed -i 's/dbpass/kodekloud/g' /data/wp-config.php
+sed -i 's/dbhost/stdb01/g' /data/wp-config.php
